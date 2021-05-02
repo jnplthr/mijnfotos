@@ -42,9 +42,6 @@ Parameters:
     Description: htpasswd file contents encrypted with KMS
     Type: String
     NoEcho: true
-  sslCertificateArn:
-    Description: ACM Certificate ARN
-    Type: String
   googleanalytics:
     Description: Google tracking id (gtag)
     Type: String
@@ -107,6 +104,7 @@ Resources:
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: mijnfotos-login-lambda-cf
       Handler: index.handler
       Runtime: nodejs10.x
       CodeUri: dist/lambda-login.zip
@@ -131,6 +129,7 @@ Resources:
   LambdaRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: mijnfotos-login-role-cf
       Path: /
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
@@ -158,6 +157,7 @@ Resources:
   ResizeFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: mijnfotos-resize-lambda-cf
       Handler: index.handler
       Runtime: nodejs10.x
       CodeUri: dist/lambda-resize.zip
@@ -177,6 +177,7 @@ Resources:
   ResizeLambdaRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: mijnfotos-resize-role-cf
       Path: /
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
@@ -212,7 +213,8 @@ Resources:
   LambdaSchedule:
     Type: "AWS::Events::Rule"
     Properties:
-      Description: A schedule for the Lambda function..
+      Name: mijnfotos-event-rule-cf
+      Description: A schedule for the Lambda function.
       ScheduleExpression: !Ref LambdaRate
       State: ENABLED
       Targets:
@@ -244,6 +246,7 @@ Resources:
   SiteBuilderFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: mijnfotos-sitebuilder-lambda-cf
       Handler: index.handler
       Runtime: nodejs10.x
       CodeUri: dist/lambda-site-builder.zip
@@ -274,6 +277,7 @@ Resources:
   SiteBuilderLambdaRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: mijnfotos-sitebuilder-role-cf
       Path: /
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
@@ -474,9 +478,9 @@ Resources:
   #
   SSLCert:
     Type: AWS::CertificateManager::Certificate
-    Condition: createSSLCert
     Properties:
-      DomainName: !Ref website
+      DomainName: *.vakantievillacuracao.com
+      ValidationMethod: DNS
 
   #
   # CloudFront Distribution
@@ -578,9 +582,9 @@ Resources:
           ViewerProtocolPolicy: redirect-to-https
         PriceClass: PriceClass_100
         ViewerCertificate:
-          AcmCertificateArn: !If [ createSSLCert, !Ref SSLCert, !Ref sslCertificateArn ]
+          AcmCertificateArn: !Ref SSLCert
           SslSupportMethod: 'sni-only'
-          MinimumProtocolVersion: 'TLSv1.1_2016'
+          MinimumProtocolVersion: 'TLSv1.2_2019'
         # Restrictions:
         #   GeoRestriction:
         #     RestrictionType: 'whitelist'
