@@ -19,6 +19,9 @@ function getUniqueSecondLevelObjects(objects) {
     // Make unique
     .filter(function(item, pos, self) {
       return self.indexOf(item) === pos;
+    })
+    .filter(function(val) {
+      return !/^[\w+-]+(\w|\d)+\/$/.test(val);
     });
 }
 
@@ -31,7 +34,8 @@ function getFilteredSortedBucketData(data) {
         !object.Key.includes('metadata.yml')
       );
     })
-    .map(miscUtils.stripPrefix);
+    .map(miscUtils.stripPrefix)
+    .filter(function(e){return e});
 }
 
 exports.getAlbums = function(data) {
