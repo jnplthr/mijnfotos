@@ -511,6 +511,7 @@ Resources:
             Id: Custom-LoginAPI
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
+              OriginSSLProtocols: TLSv1.2
         CacheBehaviors:
           - TargetOriginId: S3-ResizedBucket
             TrustedSigners:
