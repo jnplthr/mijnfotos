@@ -59,7 +59,7 @@ aws cloudformation package \
 aws cloudformation deploy \
     --template-file "${output_template_file}" \
     --stack-name ${stack_name} \
-    --capabilities CAPABILITY_IAM \
+    --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
     --parameter-overrides file://dist/config.json || true
 
 # Invoke SiteBuilder function

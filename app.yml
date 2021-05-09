@@ -4,6 +4,9 @@ Transform: AWS::Serverless-2016-10-31
 Description: An AWS CloudFormation stack to run a serverless password-protected photo gallery
 
 Parameters:
+  sslCertificateArn:
+    Description: ARN of the SSL certificate that should be used
+    Type: String
   websiteTitle:
     Description: Title to be displayed on the website
     Type: String
@@ -91,10 +94,6 @@ Parameters:
       - rate(90 days)
       - rate(365 days)
     Type: String
-
-Conditions:
-  createSSLCert: !Equals [ !Ref sslCertificateArn, "" ]
-  googletrackingid: !Equals [ !Ref googleanalytics, "" ]
 
 Resources:
 
@@ -392,7 +391,6 @@ Resources:
               StringNotEquals:
                 "s3:x-amz-server-side-encryption":
                   - "AES256"
-    DependsOn: SourceBucket
 
   #
   # Resized Bucket
@@ -447,7 +445,6 @@ Resources:
               StringNotEquals:
                 "s3:x-amz-server-side-encryption":
                   - "AES256"
-    DependsOn: ResizedBucket
 
   #
   # Web Bucket
@@ -472,15 +469,6 @@ Resources:
               AWS: !Sub
                 - arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${id}
                 - id: !Ref originAccessIdentity
-
-  #
-  # SSL Certificate
-  #
-  SSLCert:
-    Type: AWS::CertificateManager::Certificate
-    Properties:
-      DomainName: *.vakantievillacuracao.com
-      ValidationMethod: DNS
 
   #
   # CloudFront Distribution
@@ -582,7 +570,7 @@ Resources:
           ViewerProtocolPolicy: redirect-to-https
         PriceClass: PriceClass_100
         ViewerCertificate:
-          AcmCertificateArn: !Ref SSLCert
+          AcmCertificateArn: !Ref sslCertificateArn
           SslSupportMethod: 'sni-only'
           MinimumProtocolVersion: 'TLSv1.2_2019'
         # Restrictions:
