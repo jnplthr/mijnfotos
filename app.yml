@@ -81,7 +81,7 @@ Parameters:
     Type: String
     Default: ''
   ImageMagickLayer:
-    Description: layer for nodejs10.x and nodejs12.x for imagemagick here https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:145266761615:applications~image-magick-lambda-layer
+    Description: layer for nodejs12.x for imagemagick here https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:145266761615:applications~image-magick-lambda-layer
     Type: String
   LambdaRate:
     Description: The rate (frequency) that determines when CloudWatch Events runs the rule that triggers the SiteBuilderFunction.
@@ -105,7 +105,7 @@ Resources:
     Properties:
       FunctionName: mijnfotos-login-lambda-cf
       Handler: index.handler
-      Runtime: nodejs10.x
+      Runtime: nodejs12.x
       CodeUri: dist/lambda-login.zip
       Role: !GetAtt LambdaRole.Arn
       Environment:
@@ -158,7 +158,7 @@ Resources:
     Properties:
       FunctionName: mijnfotos-resize-lambda-cf
       Handler: index.handler
-      Runtime: nodejs10.x
+      Runtime: nodejs12.x
       CodeUri: dist/lambda-resize.zip
       Layers:
         - !Ref ImageMagickLayer
@@ -247,7 +247,7 @@ Resources:
     Properties:
       FunctionName: mijnfotos-sitebuilder-lambda-cf
       Handler: index.handler
-      Runtime: nodejs10.x
+      Runtime: nodejs12.x
       CodeUri: dist/lambda-site-builder.zip
       Environment:
         Variables:
