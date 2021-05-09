@@ -567,7 +567,7 @@ Resources:
             - self
           ForwardedValues:
             QueryString: false
-          ViewerProtocolPolicy: redirect-to-https
+          ViewerProtocolPolicy: https-only
         PriceClass: PriceClass_100
         ViewerCertificate:
           AcmCertificateArn: !Ref sslCertificateArn
