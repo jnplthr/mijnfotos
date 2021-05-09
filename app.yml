@@ -41,10 +41,6 @@ Parameters:
     Description: CloudFront private key encrypted with KMS
     Type: String
     NoEcho: true
-  encryptedHtpasswd:
-    Description: htpasswd file contents encrypted with KMS
-    Type: String
-    NoEcho: true
   googleanalytics:
     Description: Google tracking id (gtag)
     Type: String
@@ -96,6 +92,13 @@ Parameters:
     Type: String
 
 Resources:
+  PasswordSsmParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: "Password to log in to mijnfotos."
+      Name: !Sub "/lambda/mijnfotos-login/password"
+      Type: String
+      Value: "placeholder"
 
   #
   # Login Lambda function definition
@@ -114,7 +117,6 @@ Resources:
           SESSION_DURATION: !Ref sessionDuration
           CLOUDFRONT_KEYPAIR_ID: !Ref cloudFrontKeypairId
           ENCRYPTED_CLOUDFRONT_PRIVATE_KEY: !Ref encryptedCloudFrontPrivateKey
-          ENCRYPTED_HTPASSWD: !Ref encryptedHtpasswd
       Events:
         GetResource:
           Type: Api
