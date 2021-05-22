@@ -6,7 +6,7 @@ WORKDIR /build
 
 # install dependencies (highly cacheable)
 RUN apt-get update \
-    && apt-get install zip
+    && apt-get install -y zip
 
 # add source code
 COPY lambda_function.py /build/lambda_function.py
