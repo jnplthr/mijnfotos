@@ -21,12 +21,7 @@ const CONFIG_KEYS = {
 
 exports.handler = (event, context, callback) => {
   const body = parsePayload(event.body)
-  if (!body || !body.username || !body.password) {
-    return callback(null, {
-      statusCode: 400,
-      body: 'Bad request'
-    })
-  }
+  console.log(body)
   // get and decrypt config values
   async.mapValues(CONFIG_KEYS, getConfigValue, function (err, config) {
     if (err) {

@@ -1,9 +1,8 @@
 """Login function."""
 
-import os
-import boto3
 import json
 import logging
+import boto3
 
 
 LOGGER = logging.getLogger()
@@ -15,7 +14,9 @@ def handler(event, _):
     LOGGER.debug("Starting the handler.")
     LOGGER.info(event)
 
-    if not event_body or not event_body["password"] or not event_body["username"]:
+    body = event["body"]
+
+    if not body or not body["password"] or not body["username"]:
         return {
             "statusCode": 400,
             "body": "Bad request"
@@ -24,8 +25,8 @@ def handler(event, _):
     password_parameter = get_ssm_parameter("/lambda/mijnfotos-login/password")
 
     try:
-        if event_body["password"] == password_parameter and event_body["username"] == "jpthur":
-            LOGGER.info(f'Successful login for {event_body["username"]}.'
+        if body["password"] == password_parameter and body["username"] == "jpthur":
+            LOGGER.info(f'Successful login for {body["username"]}.')
             response_headers = get_response_headers()
 
             return {
@@ -33,20 +34,19 @@ def handler(event, _):
                 "body": json.dumps(response_headers),
                 "headers": response_headers
             }
-        else:
-            LOGGER.info(f'Invalid login for {event_body["username"]}.'
 
-            return {
-                "statusCode": 403,
-                "body": "Authentication failed",
-                "headers": {
-                    # clear any existing cookies
-                    'Set-Cookie': 'CloudFront-Policy=',
-                    'SEt-Cookie': 'CloudFront-Signature=',
-                    'SET-Cookie': 'CloudFront-Key-Pair-Id='
-                }
+        LOGGER.info(f'Invalid login for {body["username"]}.')
+        return {
+            "statusCode": 403,
+            "body": "Authentication failed",
+            "headers": {
+                # clear any existing cookies
+                'Set-Cookie': 'CloudFront-Policy=',
+                'SEt-Cookie': 'CloudFront-Signature=',
+                'SET-Cookie': 'CloudFront-Key-Pair-Id='
             }
-    except:
+        }
+    except Exception:
         return {
                 "statusCode": 500,
                 "body": "Server error"
@@ -65,14 +65,12 @@ def get_ssm_parameter(ssm_path):
 def get_response_headers():
     """ Get headers."""
 
-    session_duration = os.getenv("SESSION_DURATION")
-
     lambda_client = boto3.client("lambda")
 
     lambda_response = lambda_client.invoke(
         FunctionName="mijnfotos-cookies-lambda-cf",
         InvocationType="RequestResponse",
-        Payload=b'bytes'|file
+        Payload=b'Body'
     )
 
     if lambda_response["StatusCode"] == 200:
