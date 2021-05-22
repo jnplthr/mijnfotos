@@ -5,8 +5,8 @@ RUN mkdir /build
 WORKDIR /build
 
 # install dependencies (highly cacheable)
-RUN apk update \
-    && apk add --no-cache zip
+RUN apt-get update \
+    && apt-get install zip
 
 # add source code
 COPY lambda_function.py /build/lambda_function.py
