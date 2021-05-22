@@ -104,53 +104,101 @@ Resources:
   # Login Lambda function definition
   #
   LoginFunction:
-    Type: AWS::Serverless::Function
+    Type: "AWS::Serverless::Function"
     Properties:
-      FunctionName: mijnfotos-login-lambda-cf
-      Handler: index.handler
-      Runtime: nodejs10.x
-      CodeUri: dist/lambda-login.zip
+      FunctionName: "mijnfotos-login-lambda-cf"
+      Handler: "lambda_function.handler"
+      Runtime: "python3.8"
+      CodeUri: "dist/lambda-login.zip"
       Role: !GetAtt LambdaRole.Arn
+      Events:
+        GetResource:
+          Type: "Api"
+          Properties:
+            Path: "/login"
+            Method: "post"
+
+  #
+  # Login IAM role so the Lambda can log (CloudWatch), get SSM parameters and Invoke Lambda functions
+  #
+  LambdaRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: "mijnfotos-login-role-cf"
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "AllowLambdaServiceToAssumeRole"
+            Effect: "Allow"
+            Action: ["sts:AssumeRole"]
+            Principal:
+              Service: ["lambda.amazonaws.com"]
+      Policies:
+        - PolicyName: "get-ssm-parameter"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/lambda/mijnfotos-login/password"
+                Action:
+                  - "ssm:GetParameters"
+                  - "ssm:DescribeParameters"
+                  - "ssm:GetParameter"
+        - PolicyName: "invoke-lambda"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:mijnfotos-cookies-lambda-cf"
+                Action:
+                  - "lambda:InvokeFunction"
+
+  #
+  # Cookies Lambda function definition
+  #
+  CookiesFunction:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      FunctionName: "mijnfotos-cookies-lambda-cf"
+      Handler: "index.handler"
+      Runtime: "nodejs10.x"
+      CodeUri: "dist/lambda-cookies.zip"
+      Role: !GetAtt CookiesLambdaRole.Arn
       Environment:
         Variables:
           WEBSITE_DOMAIN: !Ref website
           SESSION_DURATION: !Ref sessionDuration
           CLOUDFRONT_KEYPAIR_ID: !Ref cloudFrontKeypairId
           ENCRYPTED_CLOUDFRONT_PRIVATE_KEY: !Ref encryptedCloudFrontPrivateKey
-      Events:
-        GetResource:
-          Type: Api
-          Properties:
-            Path: /login
-            Method: post
 
   #
-  # Login IAM role so the Lambda can log (CloudWatch) and decrypt secrets (KMS)
+  # Cookies IAM role so the Lambda can log (CloudWatch) and decrypt secrets (KMS)
   #
-  LambdaRole:
-    Type: AWS::IAM::Role
+  CookiesLambdaRole:
+    Type: "AWS::IAM::Role"
     Properties:
-      RoleName: mijnfotos-login-role-cf
-      Path: /
+      RoleName: "mijnfotos-cookies-role-cf"
+      Path: "/"
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
-          - Sid: AllowLambdaServiceToAssumeRole
-            Effect: Allow
-            Action: ['sts:AssumeRole']
+          - Sid: "AllowLambdaServiceToAssumeRole"
+            Effect: "Allow"
+            Action: ["sts:AssumeRole"]
             Principal:
-              Service: [lambda.amazonaws.com]
+              Service: ["lambda.amazonaws.com"]
       Policies:
-        - PolicyName: KmsDecrypt
+        - PolicyName: "KmsDecrypt"
           PolicyDocument:
             Statement:
-              - Effect: Allow
+              - Effect: "Allow"
                 Resource: !Sub
                   - arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/${id}
                   - id: !Ref kmsKeyId
-                Action: ['kms:Decrypt']
+                Action: ["kms:Decrypt"]
 
   #
   # Resize Lambda function definition

@@ -1,7 +1,6 @@
 // Note: no need to bundle <aws-sdk>, it's provided by Lambda
 const AWS = require('aws-sdk')
 const async = require('async')
-const htpasswd = require('htpasswd-auth')
 const cloudfront = require('aws-cloudfront-sign')
 
 // --------------
@@ -12,8 +11,7 @@ const CONFIG_KEYS = {
   websiteDomain: 'WEBSITE_DOMAIN',
   sessionDuration: 'SESSION_DURATION',
   cloudFrontKeypairId: 'CLOUDFRONT_KEYPAIR_ID',
-  cloudFrontPrivateKey: 'ENCRYPTED_CLOUDFRONT_PRIVATE_KEY',
-  htpasswd: 'ENCRYPTED_HTPASSWD'
+  cloudFrontPrivateKey: 'ENCRYPTED_CLOUDFRONT_PRIVATE_KEY'
 }
 
 // --------------
@@ -37,29 +35,12 @@ exports.handler = (event, context, callback) => {
         body: 'Server error'
       })
     } else {
-      // validate username and password
-      htpasswd.authenticate(body.username, body.password, config.htpasswd).then((authenticated) => {
-        if (authenticated) {
-          console.log('Successful login for: ' + body.username)
-          var responseHeaders = cookiesHeaders(config)
-          callback(null, {
-            statusCode: 200,
-            body: JSON.stringify(responseHeaders),
-            headers: responseHeaders
-          })
-        } else {
-          console.log('Invalid login for: ' + body.username)
-          callback(null, {
-            statusCode: 403,
-            body: 'Authentication failed',
-            headers: {
-              // clear any existing cookies
-              'Set-Cookie': 'CloudFront-Policy=',
-              'SEt-Cookie': 'CloudFront-Signature=',
-              'SET-Cookie': 'CloudFront-Key-Pair-Id='
-            }
-          })
-        }
+      console.log('Generating signed cookies')
+      var responseHeaders = cookiesHeaders(config)
+      callback(null, {
+        statusCode: 200,
+        body: JSON.stringify(responseHeaders),
+        headers: responseHeaders
       })
     }
   })
