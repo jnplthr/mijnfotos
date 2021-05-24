@@ -167,6 +167,8 @@ Resources:
       Runtime: "nodejs10.x"
       CodeUri: "dist/lambda-cookies.zip"
       Role: !GetAtt CookiesLambdaRole.Arn
+      Timeout: 10
+      MemorySize: 128
       Environment:
         Variables:
           WEBSITE_DOMAIN: !Ref website
