@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "index.js",
   "dependencies": {
-    "async": "^2.1.4",
-    "gm": "^1.21.1"
+    "async": "^2.6.3",
+    "gm": "^1.23.1"
   }
 }

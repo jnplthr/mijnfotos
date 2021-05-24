@@ -212,7 +212,7 @@ Resources:
     Properties:
       FunctionName: mijnfotos-resize-lambda-cf
       Handler: index.handler
-      Runtime: nodejs10.x
+      Runtime: nodejs12.x
       CodeUri: dist/lambda-resize.zip
       Layers:
         - !Ref ImageMagickLayer
