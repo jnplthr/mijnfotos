@@ -8,31 +8,30 @@ import boto3
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
 
+
 def handler(event, _):
     """ Main handler """
 
     LOGGER.debug("Starting the handler.")
     LOGGER.info(event)
 
-    body = event["body"]
+    body = json.loads(event["body"])
 
     if not body or not body["password"] or not body["username"]:
-        return {
-            "statusCode": 400,
-            "body": "Bad request"
-        }
+        return {"statusCode": 400, "body": "Bad request"}
 
     password_parameter = get_ssm_parameter("/lambda/mijnfotos-login/password")
 
     try:
         if body["password"] == password_parameter and body["username"] == "jpthur":
             LOGGER.info(f'Successful login for {body["username"]}.')
-            response_headers = get_response_headers()
+            header_information = get_response_headers()
+            LOGGER.info(header_information)
 
             return {
                 "statusCode": 200,
-                "body": json.dumps(response_headers),
-                "headers": response_headers
+                "body": "Authentication succeeded",
+                "headers": json.loads(header_information["body"]),
             }
 
         LOGGER.info(f'Invalid login for {body["username"]}.')
@@ -41,16 +40,14 @@ def handler(event, _):
             "body": "Authentication failed",
             "headers": {
                 # clear any existing cookies
-                'Set-Cookie': 'CloudFront-Policy=',
-                'SEt-Cookie': 'CloudFront-Signature=',
-                'SET-Cookie': 'CloudFront-Key-Pair-Id='
-            }
+                "Set-Cookie": "CloudFront-Policy=",
+                "SEt-Cookie": "CloudFront-Signature=",
+                "SET-Cookie": "CloudFront-Key-Pair-Id=",
+            },
         }
-    except Exception:
-        return {
-                "statusCode": 500,
-                "body": "Server error"
-            }
+    except Exception as exception:
+        LOGGER.error(exception)
+        return {"statusCode": 500, "body": "Server error"}
 
 
 def get_ssm_parameter(ssm_path):
@@ -70,9 +67,9 @@ def get_response_headers():
     lambda_response = lambda_client.invoke(
         FunctionName="mijnfotos-cookies-lambda-cf",
         InvocationType="RequestResponse",
-        Payload=b'Body'
+        Payload='{"name": "test"}',
     )
 
     if lambda_response["StatusCode"] == 200:
-        return lambda_response["Payload"]
+        return json.loads(lambda_response["Payload"].read())
     raise

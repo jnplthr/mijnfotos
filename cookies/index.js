@@ -20,8 +20,7 @@ const CONFIG_KEYS = {
 // --------------
 
 exports.handler = (event, context, callback) => {
-  const body = parsePayload(event.body)
-  console.log(body)
+  console.log(event)
   // get and decrypt config values
   async.mapValues(CONFIG_KEYS, getConfigValue, function (err, config) {
     if (err) {
@@ -39,19 +38,6 @@ exports.handler = (event, context, callback) => {
       })
     }
   })
-}
-
-// --------------
-// Parse the body from JSON
-// --------------
-
-function parsePayload (body) {
-  try {
-    return JSON.parse(body)
-  } catch (e) {
-    console.log('Failed to parse JSON payload')
-    return null
-  }
 }
 
 // --------------
