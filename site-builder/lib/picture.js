@@ -5,7 +5,7 @@ const getPictures = exports.getPictures = function(albums, objects) {
 
       return (
         object.startsWith(album + "/") &&
-        (objectLower.endsWith('.jpg') || objectLower.endsWith('.png'))
+        (objectLower.endsWith('.jpg') || objectLower.endsWith('.png') || objectLower.endsWith('.mp4'))
       );
     });
   });
