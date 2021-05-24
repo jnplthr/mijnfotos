@@ -111,6 +111,8 @@ Resources:
       Runtime: "python3.8"
       CodeUri: "dist/lambda-login.zip"
       Role: !GetAtt LambdaRole.Arn
+      Timeout: 30
+      MemorySize: 128
       Events:
         GetResource:
           Type: "Api"

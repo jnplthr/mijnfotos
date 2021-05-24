@@ -30,7 +30,7 @@ def handler(event, _):
 
             return {
                 "statusCode": 200,
-                "body": "Authentication succeeded",
+                "body": header_information["body"],
                 "headers": json.loads(header_information["body"]),
             }
 
