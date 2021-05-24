@@ -6,9 +6,9 @@
   "license": "MIT",
   "main": "index.js",
   "dependencies": {
-    "async": "^2.1.4",
+    "async": "^2.6.3",
     "aws-cloudfront-sign": "^2.2.0",
-    "content-type": "^1.0.2",
+    "content-type": "^1.0.4",
     "querystringparser": "^0.1.1"
   }
 }

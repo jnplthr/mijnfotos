@@ -164,7 +164,7 @@ Resources:
     Properties:
       FunctionName: "mijnfotos-cookies-lambda-cf"
       Handler: "index.handler"
-      Runtime: "nodejs10.x"
+      Runtime: "nodejs12.x"
       CodeUri: "dist/lambda-cookies.zip"
       Role: !GetAtt CookiesLambdaRole.Arn
       Timeout: 10
